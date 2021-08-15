@@ -3,7 +3,7 @@ package com.dervla.kpopapi.controller;
 
 import com.dervla.kpopapi.entity.Company;
 import com.dervla.kpopapi.exception.ResourceNotFoundException;
-import com.dervla.kpopapi.repository.CompanyRepository;
+import com.dervla.kpopapi.service.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,18 +15,22 @@ import java.util.*;
 @RequestMapping("/kpop-api/company")
 public class CompanyController {
 
+    private final CompanyService companyService;
+
     @Autowired
-    private CompanyRepository companyRepository;
+    public CompanyController(CompanyService companyService) {
+        this.companyService = companyService;
+    }
 
     @GetMapping("/")
     public List<Company> getAllCompanies() {
-        return companyRepository.findAll();
+        return companyService.findAll();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Company> getCompanyById(@PathVariable(value = "id") Long companyId) throws ResourceNotFoundException {
         Company company =
-                companyRepository
+                companyService
                         .findById(companyId)
                         .orElseThrow(() -> new ResourceNotFoundException("Company not found with id: " + companyId));
         return ResponseEntity.ok().body(company);
@@ -34,7 +38,7 @@ public class CompanyController {
 
     @PostMapping("/")
     public Company createCompany(@Valid @RequestBody Company company) {
-        return companyRepository.save(company);
+        return companyService.save(company);
     }
 
     @PutMapping("/{id}")
@@ -42,7 +46,7 @@ public class CompanyController {
                                                  @Valid @RequestBody Company companyDetails)
             throws ResourceNotFoundException {
         Company company =
-                companyRepository
+                companyService
                         .findById(companyId)
                         .orElseThrow(() -> new ResourceNotFoundException("Company not found with id: " + companyId));
         company.setName(companyDetails.getName());
@@ -50,17 +54,17 @@ public class CompanyController {
         company.setNumberOfGroups(companyDetails.getNumberOfGroups());
         company.setNumberOfMembers(companyDetails.getNumberOfMembers());
 
-        final Company updatedCompany = companyRepository.save(company);
+        final Company updatedCompany = companyService.save(company);
         return ResponseEntity.ok(updatedCompany);
     }
 
     @DeleteMapping("/{id}")
     public Map<String, Boolean> deleteCompany(@PathVariable(value = "id") Long companyId) throws Exception {
         Company company =
-                companyRepository
+                companyService
                         .findById(companyId)
                         .orElseThrow(() -> new ResourceNotFoundException("Company not found on :: " + companyId));
-        companyRepository.delete(company);
+        companyService.delete(company);
 
         Map<String, Boolean> response = new HashMap<>();
         response.put("deleted", Boolean.TRUE);

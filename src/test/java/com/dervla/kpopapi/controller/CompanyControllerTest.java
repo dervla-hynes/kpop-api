@@ -2,7 +2,7 @@ package com.dervla.kpopapi.controller;
 
 import com.dervla.kpopapi.entity.Company;
 import com.dervla.kpopapi.exception.ResourceNotFoundException;
-import com.dervla.kpopapi.repository.CompanyRepository;
+import com.dervla.kpopapi.service.CompanyService;
 import com.google.common.collect.ImmutableList;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,18 +25,18 @@ class CompanyControllerTest {
 	CompanyController companyController;
 
 	@MockBean
-	CompanyRepository companyRepository;
+	CompanyService companyService;
 
 	@Test()
 	void getRequestReturnsAllCompanies() {
-		when(companyRepository.findAll()).thenReturn(createSampleCompanies());
+		when(companyService.findAll()).thenReturn(createSampleCompanies());
 		List<Company> companies = companyController.getAllCompanies();
 		assertThat(companies.size()).isEqualTo(2);
 	}
 
 	@Test()
 	void getRequestReturnsOneCompany() throws ResourceNotFoundException {
-		when(companyRepository.findById(1L)).thenReturn(createSampleCompany());
+		when(companyService.findById(1L)).thenReturn(createSampleCompany());
 		ResponseEntity<Company> response = companyController.getCompanyById(1L);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		assertThat(response.getBody().getName()).isEqualTo("JYP");
